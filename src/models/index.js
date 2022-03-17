@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const User =require('./users.model');
+const profile =require('./profile.model');
 
 
 
@@ -31,5 +32,5 @@ const sequelize = new Sequelize(POSTGRES_URL , sequelizeOptions);
 module.exports={
     db :sequelize, //for connection ,we will use it the index.js 
     Users: User(sequelize,DataTypes),//for creating the table and we will use it in our routes
-    
+    profiles:profile(sequelize,DataTypes)
 }
