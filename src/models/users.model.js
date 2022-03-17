@@ -2,7 +2,7 @@
 
 require('dotenv').config();
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const JWT = require('jsonwebtoken');
 
 const SECRET = process.env.SECRET;
 
@@ -45,38 +45,35 @@ const Users = sequelize.define('user', {  // a define method to mappings between
     }
 
 });
-Users.authenticateBasic = async function (username,password) {
+Users.authenticateBasic = async function (username, password) {
     try {
-        const user = await this.findOne({ where :{username:username}});
-        const valid = await bcrypt.compare(password,user.password);
-        if(valid) {
-            // generate a new token
-            let newToken = jwt.sign({username:user.username},SECRET);
-            user.token = newToken;
-            return user;
-        } else {
-            console.log('user is not valid');
-            // return;
-            throw new Error('Invalid password');
-        }
-    } catch(error) {
-       console.log('error ',error);
+      const user = await this.findOne({ where: { username } });
+      const validUser = await bcrypt.compare(password, user.password);
+      if (validUser) {
+        const token = await JWT.sign(user.username, SECRET);
+        user.token = token;
+        return user;
+      } else {
+        return "Invalid User";
+      }
+    } catch (error) {
+      console.log(error.message);
+      return error.message;
     }
-}
+  };
 
-Users.validateToken = async function(token) {
-    const parsedToken = jwt.verify(token,SECRET);
-    console.log('llllllll',parsedToken);
-    const user = await this.findOne({where:{username:parsedToken.username}});
-    if(user) {
-        return user
+  Users.validateToken = async function (token) {
+    try {
+      const username = await JWT.verify(token, SECRET);
+      const user = await this.findOne({ where: { username } });
+      if (user) return user;
+      else return "Invalid Token";
+    } catch (error) {
+      throw new Error(error.message);
     }
-    
-    throw new Error('invalid token')
-}
-
-return Users;
-}
+  };
+  return Users;
+};
 
 
 module.exports = UsersModel;

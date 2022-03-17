@@ -1,15 +1,19 @@
 'use strict';
 
 const express =require ('express');
+const app = express();
+
 require('dotenv').config();
-const router= require('./routes/router')
+const v1=require('./routes/v1')
+const v2=require('./routes/v2')
 const errorhandler=require('./error-handlers/500');
 const notfoundpage=require('./error-handlers/404');
 
-const app = express();
 
 app.use(express.json()); //  method inbuilt in express to recognize the incoming Request Object as a JSON Object.
-app.use(router);
+
+app.use(v1);
+app.use(v2);
 
 app.get('/',(req,res)=>{
     res.send('server is alive')
